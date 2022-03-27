@@ -4,7 +4,7 @@ import {
   getDeletedCommands,
 } from "./commands";
 
-export const send = (endpoint, newer, older, guildID) => {
+export const send = (endpoint, newer, older) => {
   fetch(endpoint, {
     method: "POST",
     body: JSON.stringify({
@@ -13,7 +13,6 @@ export const send = (endpoint, newer, older, guildID) => {
         edited: getEditedCommands(newer, older),
         deleted: getDeletedCommands(newer, older),
       },
-      guild_id: guildID,
     }),
   });
 };

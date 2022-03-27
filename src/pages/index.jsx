@@ -1,34 +1,33 @@
-import { Header } from "../components/header";
-import "tailwindcss/tailwind.css";
-import { Layout } from "../components/layout";
-import { getEnv } from "../utils/envs";
 import Error from "next/error";
-import { getGuildsURL } from "../utils/endpoint";
 
-import { GuildLinks } from "../components/application/guild_links";
-import { useGuilds } from "../hooks";
-import { GuildLink } from "../components/application";
+import { Header } from "../components/nav/header/header";
+import { Layout } from "../components/nav/layout/layout";
 
-const Index = ({ status, data }) => {
-  if (status) return <Error statusCode={error} />;
-  const guilds = useGuilds(data.guilds);
+import { GuildSummaryCard } from "../components/model/guild/GuildSummaryCard";
+import { GuildSummaryHeader } from "../components/model/guild/GuildSummaryHeader";
+import { GuildSummaryLink } from "../components/model/guild/GuildSummaryLink";
+import { GuildSummaries } from "../components/model/guild/GuildSummaries";
+
+import { getGuildsURL } from "../utils/endpoints";
+import { getHeaders } from "../utils/constants";
+
+export default function IndexPage({ status, guilds }) {
+  if (status) return <Error statusCode={status} />;
 
   return (
     <Layout>
       <Header />
-      <GuildLink summary="Set Global Application Command" />
-      {guilds && <GuildLinks guilds={guilds} />}
+      <GuildSummaryCard>
+        <GuildSummaryHeader>Set global application commands</GuildSummaryHeader>
+        <GuildSummaryLink href="/guilds" />
+      </GuildSummaryCard>
+      {guilds && <GuildSummaries guilds={guilds} />}
     </Layout>
   );
-};
+}
 
 export const getServerSideProps = async () => {
-  const env = getEnv();
-
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`,
-  };
+  const headers = getHeaders();
 
   const guilds = await fetch(getGuildsURL(), {
     method: "GET",
@@ -37,11 +36,7 @@ export const getServerSideProps = async () => {
 
   return {
     props: {
-      data: {
-        guilds: guilds.status === 200 ? await guilds.json() : undefined,
-      },
+      guilds: guilds.status === 200 ? await guilds.json() : undefined,
     },
   };
 };
-
-export default Index;
